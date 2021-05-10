@@ -14,38 +14,37 @@
       <v-row justify="center" align="center" v-if="loading">
         <v-progress-circular indeterminate color="red" />
       </v-row>
-      <HelloWorld v-else :data="data" />
+      <DataList v-else :data="data" />
     </v-main>
   </v-app>
 </template>
 
 <script>
 // note we can use vuex store as well
-import HelloWorld from "./components/HelloWorld";
-import Vue from "vue";
+import DataList from "./components/HelloWorld";
+import { mapState } from "vuex";
+import { get } from "lodash";
+// import Vue from "vue";
 export default {
   name: "App",
   components: {
-    HelloWorld,
+    DataList,
   },
   data: () => ({
     search: "",
-    data: [],
     loading: false,
   }),
+  computed: {
+    ...mapState({
+      data: (state) => get(state, "data", {}),
+    }),
+  },
   methods: {
     getResults() {
-      console.log("loading..");
-      this.loading = true;
-      Vue.axios
-        .get(
-          `https://www.googleapis.com/youtube/v3/search?key=AIzaSyAksBwXDiRDX1IXVcuZKAWqysy1v_iR_VQ&part=snippet,id&order=date&maxResults=20&q=${this.search}`
-        )
-        .then(({ data }) => {
-          console.log(data);
-          this.data = data;
-          this.loading = false;
-        });
+      // this.loading = true;
+      this.$store
+        .dispatch("fetchData", this.search)
+        // .finaly(() => (this.loading = false));
     },
   },
 };
